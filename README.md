@@ -1,20 +1,20 @@
 LEVANTAR APP
-Crear un entorno virtual: python -m venv .venv
-
-Activar el entorno: .venv\Scripts\activate
-
-python -m pip install --upgrade pip
-
-python -m pip install -r requirements.txt
-
-python -m streamlit run app.py   
+    Crear un entorno virtual: python -m venv .venv
+    
+    Activar el entorno: .venv\Scripts\activate
+    
+    python -m pip install --upgrade pip
+    
+    python -m pip install -r requirements.txt
+    
+    python -m streamlit run app.py   
 
 FALTA:
 -Agregar mas sintomas
 -Agregar otra info visual
 -agregar otras acciones recomendadas
 
-Componentes del SE:
+COMPONENTES DEL SISTEMA EXPERTO:
     Base de Conocimiento (BC): Está representada por la estructura del modelo y las tablas CPD.
     Motor de Inferencia: Implementas VariableElimination, cumpliendo con el ciclo de emparejar y ejecutar de forma estocástica.  
     Subsistema de Explicación: Incluyes una salida de texto que justifica la clasificación, un requisito clave de los SE.  

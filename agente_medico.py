@@ -28,7 +28,11 @@ modelo = DiscreteBayesianNetwork([
     ('Enfermedad', 'Tos'),
     ('Enfermedad', 'Mialgia'),
     ('Enfermedad', 'Viaje_Reciente'),      # Nuevo nodo
-    ('Enfermedad', 'Contacto_Dengue')    # Nuevo nodo
+    ('Enfermedad', 'Contacto_Dengue'),    # Nuevo nodo
+    ('Enfermedad', 'Dolor_Retroocular'), # Nuevo: Muy común en Dengue
+    ('Enfermedad', 'Perdida_Olfato'),      # Nuevo: Muy común en COVID
+    ('Enfermedad', 'Sarpullido'),          # Nuevo: Específico de Dengue
+    ('Enfermedad', 'Garganta_Congestion')  # Nuevo: Específico de COVID-19
 ])
 
 prevalencia = calcular_prevalencia_estacional()
@@ -48,6 +52,32 @@ cpd_mialgia = TabularCPD(variable='Mialgia', variable_card=2,
                          values=[[0.99, 0.05, 0.7], [0.01, 0.95, 0.3]],
                          evidence=['Enfermedad'], evidence_card=[3])
 
+# CPD para Dolor Retroocular: Alta prob en Dengue (0.8), baja en los demás.
+# Estructura de values: [[Prob NO], [Prob SI]]
+# Columnas: [Ninguna, Dengue, COVID]
+cpd_retroocular = TabularCPD(variable='Dolor_Retroocular', variable_card=2,
+                             values=[[0.99, 0.20, 0.95], 
+                                     [0.01, 0.80, 0.05]], 
+                             evidence=['Enfermedad'], evidence_card=[3])
+
+# CPD para Pérdida de Olfato: Alta prob en COVID (0.7), casi nula en Dengue.
+cpd_olfato = TabularCPD(variable='Perdida_Olfato', variable_card=2,
+                        values=[[0.99, 0.98, 0.30], 
+                                [0.01, 0.02, 0.70]], 
+                        evidence=['Enfermedad'], evidence_card=[3])
+
+# CPD Sarpullido: Probabilidad alta en Dengue (0.5 - 0.6), muy baja en COVID.
+cpd_sarpullido = TabularCPD(variable='Sarpullido', variable_card=2,
+                            values=[[0.98, 0.45, 0.99], # Prob de NO tener
+                                    [0.02, 0.55, 0.01]], # Prob de SÍ tener
+                            evidence=['Enfermedad'], evidence_card=[3])
+
+# CPD Garganta/Congestión: Probabilidad alta en COVID (0.7), baja en Dengue.
+cpd_garganta = TabularCPD(variable='Garganta_Congestion', variable_card=2,
+                          values=[[0.95, 0.90, 0.30], # Prob de NO tener
+                                  [0.05, 0.10, 0.70]], # Prob de SÍ tener
+                          evidence=['Enfermedad'], evidence_card=[3])
+
 # Definición de CPDs para factores de riesgo
 cpd_viaje = TabularCPD(variable='Viaje_Reciente', variable_card=2,
                        values=[[0.99, 0.2, 0.9],   # Prob de NO haber viajado dado (Ninguna, Dengue, Covid)
@@ -59,7 +89,8 @@ cpd_contacto = TabularCPD(variable='Contacto_Dengue', variable_card=2,
                                   [0.01, 0.9, 0.05]], 
                           evidence=['Enfermedad'], evidence_card=[3])
 
-modelo.add_cpds(cpd_enf, cpd_fiebre, cpd_tos, cpd_mialgia, cpd_viaje, cpd_contacto)
+modelo.add_cpds(cpd_enf, cpd_fiebre, cpd_tos, cpd_mialgia, cpd_viaje, 
+                cpd_contacto, cpd_retroocular, cpd_olfato, cpd_sarpullido, cpd_garganta)
 inferencia = VariableElimination(modelo)
 
 def realizar_inferencia(percepciones):
@@ -83,10 +114,18 @@ def realizar_inferencia(percepciones):
             explicacion += "- El contacto con un paciente positivo es un factor de riesgo determinante.\n"
         if datetime.now().month in [12, 1, 2, 3]:
             explicacion += "- Se aplicó un factor de riesgo por prevalencia alta de Dengue durante los meses de verano en Corrientes.\n"
-            
+        if percepciones.get('Dolor_Retroocular') == 1:
+            explicacion += "- El dolor retroocular es un síntoma clásico del Dengue que refuerza el diagnóstico.\n"
+        if percepciones.get('Sarpullido') == 1:
+            explicacion += "- La presencia de sarpullido/erupción cutánea es un signo dermatológico fuerte para Dengue.\n"
+
     elif prediccion == "COVID-19":
         if percepciones.get('Tos') == 1:
             explicacion += "- La presencia de tos orienta el diagnóstico hacia patologías respiratorias.\n"
+        if percepciones.get('Perdida_Olfato') == 1:
+            explicacion += "- La pérdida de olfato es un marcador altamente específico de infección por COVID-19.\n"
+        if percepciones.get('Garganta_Congestion') == 1:
+            explicacion += "- Los síntomas de las vías respiratorias superiores (garganta/congestión) orientan el diagnóstico hacia COVID-19.\n"
             
     return dict(zip(etiquetas, probabilidades)), explicacion
 

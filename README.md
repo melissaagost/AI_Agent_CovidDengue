@@ -1,5 +1,4 @@
-  🚀 Ejecución del Proyecto
-
+#Ejecución del Proyecto
 Pasos para configurar el entorno y levantar la aplicación:
 
     python -m venv .venv
@@ -42,32 +41,42 @@ El sistema aplica una regla de negocio:
 La Red Bayesiana es un modelo gráfico que representa dependencias entre variables.  
 En el proyecto se implementa utilizando la librería `pgmpy`.
 
-### Estructura
+### Estructura:
 
-#### Nodo Raíz: La variable "Enfermedad" (que puede ser Ninguna, Dengue o COVID-19).  
+#### Nodo Raíz: 
+  -La variable "Enfermedad" (que puede ser Ninguna, Dengue o COVID-19).  
 #### Nodos Dependientes (Síntomas): "Fiebre", "Tos", "Mialgia", etc. Estos dependen directamente de la enfermedad.  
 
-### Tablas de Probabilidad Condicional (CPD): Son matrices que definen la relación lógica. Por ejemplo, la probabilidad de tener "Pérdida de Olfato" dado que el paciente tiene "COVID-19" es del 70%, mientras que para "Dengue" es solo del 2%. Esto permite al sistema distinguir entre patologías con síntomas similares.  
+#### Tablas de Probabilidad Condicional (CPD): 
+  -Son matrices que definen la relación lógica. Por ejemplo, la probabilidad de tener "Pérdida de Olfato" dado que el paciente tiene "COVID-19" es del 70%, mientras que para "Dengue" es solo del 2%. Esto permite al sistema distinguir entre patologías con síntomas similares.  
 
 
 ## 3. Motor de Inferencia
 
 El motor de inferencia es el componente encargado de decidir qué cálculos aplicar para generar el diagnóstico probabilístico.
 
-### Algoritmo: Utiliza VariableElimination para calcular la probabilidad a posteriori.  
+### Algoritmo: 
+  -Utiliza VariableElimination para calcular la probabilidad a posteriori.  
 
-### Funcionamiento: Toma la Memoria de Trabajo (los síntomas que el usuario marca en Streamlit) y los cruza con la Base de Conocimiento (la Red Bayesiana).  
+### Funcionamiento: 
+  -Toma la Memoria de Trabajo (los síntomas que el usuario marca en Streamlit) y los cruza con la Base de Conocimiento (la Red Bayesiana).  
 
-### Resultado: Calcula cuál es la patología con mayor probabilidad una vez observada la evidencia (los síntomas).
+### Resultado: 
+  -Calcula cuál es la patología con mayor probabilidad una vez observada la evidencia (los síntomas).
 
 
 # Componentes del SE y su implementación en código
 
-## Base de Conocimiento,La Red Bayesiana y sus tablas CPD (conocimiento permanente).  
-## Memoria de Trabajo,El diccionario evidencia con los síntomas actuales del paciente.  
-## Motor de Inferencias,El objeto VariableElimination que realiza el cálculo probabilístico.  
-## Subsistema de Explicación,La función realizar_inferencia genera un texto justificando el diagnóstico según los síntomas detectados (obligatorio en SE). 
-## Interfaz de Usuario,La aplicación de Streamlit (app.py) que actúa como sensor (entrada) y actuador (salida).  
+#### Base de Conocimiento
+  -La Red Bayesiana y sus tablas CPD (conocimiento permanente).  
+#### Memoria de Trabajo
+  -El diccionario evidencia con los síntomas actuales del paciente.  
+#### Motor de Inferencias
+  -El objeto VariableElimination que realiza el cálculo probabilístico.  
+#### Subsistema de Explicación
+  -La función realizar_inferencia genera un texto justificando el diagnóstico según los síntomas detectados (obligatorio en SE). 
+#### Interfaz de Usuario
+  -La aplicación de Streamlit (app.py) que actúa como sensor (entrada) y actuador (salida).  
 
 
 # Características Técnicas

@@ -37,13 +37,3 @@ Pasos para configurar el entorno y levantar la aplicación:
     Actuadores: Recomendación de derivación (Aislamiento/Sala General).
 
     Sensores: Interfaz de síntomas y antecedentes epidemiológicos.
-
-📝 Próximos Pasos 
-
-    [ ] Ampliar el catálogo de síntomas y factores de riesgo en la Red Bayesiana.
-
-    [ ] Incorporar visualizaciones estadísticas avanzadas en la interfaz.
-
-    [ ] Validar formalmente la precisión del modelo probabilístico frente a casos de prueba.
-
-    [ ] Extender las acciones recomendadas según protocolos médicos de aislamiento actualizados.

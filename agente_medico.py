@@ -4,8 +4,8 @@ Motor de Inferencia Bayesiano para clasificación de riesgo Dengue / COVID-19.
 Sistema Experto de Triaje Infectológico — Corrientes, Argentina.
 
 Los priors se calculan a partir de datasets reales:
-  - dataset_covid_global.csv            → tasa de letalidad global COVID
-  - dataset_dengue_y_zika_2025_2026.csv → circulación de Dengue en Corrientes 2025
+- dataset_covid_global.csv            → tasa de letalidad global COVID
+- dataset_dengue_y_zika_2025_2026.csv → circulación de Dengue en Corrientes 2025
 """
 
 import os

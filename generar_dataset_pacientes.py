@@ -23,7 +23,11 @@ TABLA_CPD = {
     'Mialgia':          {'Ninguna': 0.08, 'Dengue': 0.85, 'COVID-19': 0.40},
     'Perdida_Olfato':   {'Ninguna': 0.01, 'Dengue': 0.02, 'COVID-19': 0.70},
     'Dolor_Cabeza':     {'Ninguna': 0.12, 'Dengue': 0.80, 'COVID-19': 0.50},
-    'Viaje_Reciente':   {'Ninguna': 0.05, 'Dengue': 0.45, 'COVID-19': 0.20} 
+    'Viaje_Reciente':   {'Ninguna': 0.05, 'Dengue': 0.45, 'COVID-19': 0.20},
+    'Contacto_Positivo': {'Ninguna': 0.02, 'Dengue': 0.40, 'COVID-19': 0.35},
+    'Dolor_Retroocular': {'Ninguna': 0.01, 'Dengue': 0.40, 'COVID-19': 0.05},
+    'Sarpullido':       {'Ninguna': 0.02, 'Dengue': 0.55, 'COVID-19': 0.01},
+    'Diarrea':          {'Ninguna': 0.05, 'Dengue': 0.50, 'COVID-19': 0.30}
 }
 
 print(f"Generando dataset sintético de {NUM_PACIENTES} pacientes...")
@@ -65,7 +69,9 @@ for i in range(NUM_PACIENTES):
 df_pacientes = pd.DataFrame(lista_pacientes)
 
 # Reordenar columnas de forma prolija
-columnas = ['Verano', 'Fiebre', 'Tos', 'Mialgia', 'Perdida_Olfato', 'Dolor_Cabeza', 'Viaje_Reciente', 'Enfermedad']
+columnas = ['Verano', 'Fiebre', 'Tos', 'Mialgia', 'Perdida_Olfato', 'Dolor_Cabeza', 
+            'Viaje_Reciente', 'Contacto_Positivo', 'Dolor_Retroocular', 'Sarpullido', 
+            'Diarrea', 'Enfermedad']
 df_pacientes = df_pacientes[columnas]
 
 # Guardar archivo físico

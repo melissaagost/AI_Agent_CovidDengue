@@ -38,6 +38,18 @@ with col_s5:
 with col_s6:
     viaje_reciente = st.checkbox("Viaje Reciente a zona de brote")
 
+col_s7, col_s8, col_s9 = st.columns(3)
+with col_s7:
+    contacto_positivo = st.checkbox("Contacto con Persona Positiva")
+with col_s8:
+    dolor_retroocular = st.checkbox("Dolor Retroocular (detrás de ojos)")
+with col_s9:
+    sarpullido = st.checkbox("Sarpullido / Erupción Cutánea")
+
+col_s10 = st.columns(1)
+with col_s10[0]:
+    diarrea = st.checkbox("Diarrea")
+
 mes_actual = datetime.now().month
 verano = 1 if mes_actual in [12, 1, 2, 3] else 0
 
@@ -50,7 +62,12 @@ if st.button("Calcular Diagnóstico", type="primary"):
         'Tos': int(tos),
         'Mialgia': int(mialgia),
         'Perdida_Olfato': int(perdida_olfato),
-        'Viaje_Reciente': int(viaje_reciente)
+        'Dolor_Cabeza': int(dolor_cabeza),
+        'Viaje_Reciente': int(viaje_reciente),
+        'Contacto_Positivo': int(contacto_positivo),
+        'Dolor_Retroocular': int(dolor_retroocular),
+        'Sarpullido': int(sarpullido),
+        'Diarrea': int(diarrea)
     }
 
     probs_bayes, explicacion_bayes = realizar_inferencia(evidencia_bayes)
@@ -65,7 +82,11 @@ if st.button("Calcular Diagnóstico", type="primary"):
         'Mialgia': int(mialgia),
         'Perdida_Olfato': int(perdida_olfato),
         'Dolor_Cabeza': int(dolor_cabeza),
-        'Viaje_Reciente': int(viaje_reciente)
+        'Viaje_Reciente': int(viaje_reciente),
+        'Contacto_Positivo': int(contacto_positivo),
+        'Dolor_Retroocular': int(dolor_retroocular),
+        'Sarpullido': int(sarpullido),
+        'Diarrea': int(diarrea)
     }])
 
     prediccion_nn = modelo_neuronal.predict(datos_paciente_nn)[0]

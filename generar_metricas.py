@@ -46,13 +46,18 @@ def principal():
     y_pred_bayesiana = []
 
     for _, fila in X_prueba.iterrows():
-        # Diccionario de evidencia ajustado a tu CSV actual
+        # Diccionario de evidencia ajustado a los 10 síntomas
         evidencia = {
             'Fiebre': fila['Fiebre'],
             'Tos': fila['Tos'],
             'Mialgia': fila['Mialgia'],
             'Perdida_Olfato': fila['Perdida_Olfato'],
-            'Viaje_Reciente': fila['Viaje_Reciente']
+            'Dolor_Cabeza': fila['Dolor_Cabeza'],
+            'Viaje_Reciente': fila['Viaje_Reciente'],
+            'Contacto_Positivo': fila['Contacto_Positivo'],
+            'Dolor_Retroocular': fila['Dolor_Retroocular'],
+            'Sarpullido': fila['Sarpullido'],
+            'Diarrea': fila['Diarrea']
         }
 
         # 1. Recibir el diccionario de probabilidades

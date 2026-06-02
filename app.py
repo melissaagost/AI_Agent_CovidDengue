@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import joblib
+import json
 from datetime import datetime
 
 # Importamos el motor de la Red Bayesiana
@@ -18,6 +19,17 @@ def cargar_modelo_neuronal():
     return joblib.load("modelo_neuronal.pkl")
 
 modelo_neuronal = cargar_modelo_neuronal()
+
+# Cargar métricas globales precomputadas (accuracy) para mostrar comparativas
+@st.cache_resource
+def cargar_metricas_modelos():
+    try:
+        with open("metricas_modelos.json", "r", encoding="utf-8") as archivo:
+            return json.load(archivo)
+    except FileNotFoundError:
+        return None
+
+metricas_modelos = cargar_metricas_modelos()
 
 # Interfaz de usuario: Captura de datos
 st.header("Síntomas y Factores de Riesgo")
@@ -91,6 +103,15 @@ if st.button("Calcular Diagnóstico", type="primary"):
 
     prediccion_nn = modelo_neuronal.predict(datos_paciente_nn)[0]
 
+    probs_nn = None
+    confianza_nn = None
+    try:
+        probs_nn = modelo_neuronal.predict_proba(datos_paciente_nn)[0]
+        clases_nn = modelo_neuronal.classes_
+        confianza_nn = probs_nn.max() * 100
+    except AttributeError:
+        pass
+
     # Salida Visual Comparativa
     st.header("Comparativa de Motores de Inferencia")
     col_izq, col_der = st.columns(2)
@@ -111,10 +132,7 @@ if st.button("Calcular Diagnóstico", type="primary"):
         st.metric(label="Diagnóstico Principal", value=prediccion_nn)
 
         # Gráfico de barras para las probabilidades internas
-        try:
-            probs_nn = modelo_neuronal.predict_proba(datos_paciente_nn)[0]
-            clases_nn = modelo_neuronal.classes_
-
+        if probs_nn is not None:
             # Formatear datos para el gráfico de Streamlit
             df_probs = pd.DataFrame({
                 "Enfermedad": clases_nn,
@@ -123,8 +141,7 @@ if st.button("Calcular Diagnóstico", type="primary"):
 
             st.write("**Distribución de Probabilidades Internas:**")
             st.bar_chart(df_probs)
-
-        except AttributeError:
+        else:
             st.warning("Este modelo funciona con fronteras de decisión rígidas y no expone probabilidades.")
 
         st.markdown("### Naturaleza del Modelo")
@@ -132,6 +149,78 @@ if st.button("Calcular Diagnóstico", type="primary"):
             "Este modelo es una caja negra probabilística. Reconoce patrones "
             "complejos de forma matemática, pero carece de un mecanismo para explicar su decisión clínica."
         )
+
+    # Nueva sección visual con comparativa de precisión general de los modelos
+    st.markdown("---")
+    st.header("Resumen de Rendimiento de los Modelos")
+    st.write(
+        "A continuación se muestran las métricas globales de accuracy para ambos motores de inferencia. "
+        "Debajo también verás la comparativa de probabilidades del caso actual, para dejar en claro que cada motor elige diferente."
+    )
+
+    if metricas_modelos is not None:
+        accuracy_bayesiana = metricas_modelos.get("accuracy_bayesiana", None)
+        accuracy_neuronal = metricas_modelos.get("accuracy_neuronal", None)
+        mejor_modelo = metricas_modelos.get("mejor_modelo", "N/A")
+
+        if accuracy_bayesiana is not None and accuracy_neuronal is not None:
+            diferencia = (accuracy_neuronal - accuracy_bayesiana) * 100
+            diferencia_text = f"{diferencia:.1f} pts"
+            if abs(diferencia) < 1e-6:
+                diferencia_text = "Igual en este set"
+
+            col_card1, col_card2, col_card3 = st.columns(3)
+            with col_card1:
+                st.metric("Red Bayesiana", f"{accuracy_bayesiana:.2f}", "Accuracy")
+                st.info("Precisión global calculada sobre un conjunto de prueba sintético.")
+
+            with col_card2:
+                st.metric("Red Neuronal", f"{accuracy_neuronal:.2f}", "Accuracy")
+                st.info("Precisión global calculada sobre un conjunto de prueba sintético.")
+
+            with col_card3:
+                st.metric("Modelo más preciso", mejor_modelo)
+                st.metric("Diferencia", diferencia_text)
+                if diferencia_text == "Igual en este set":
+                    st.info("La accuracy global quedó empatada en la muestra sintética.")
+                else:
+                    st.info("Comparativa visual de los dos motores.")
+
+            st.write("**Comentario:** La accuracy global es similar, pero esto no quiere decir que los motores calculen igual. Observa la comparativa de probabilidades actuales para ver las diferencias de cada caso.")
+
+            # Comparativa de probabilidades para el caso actual
+            st.subheader("Comparativa de probabilidades del caso actual")
+            bayes_rows = [f"**{label}**: {probs_bayes[label] * 100:.1f}%" for label in probs_bayes]
+            if probs_nn is not None:
+                neur_rows = [f"**{clases_nn[i]}**: {probs_nn[i] * 100:.1f}%" for i in range(len(clases_nn))]
+            else:
+                neur_rows = [f"**{prediccion_nn}**: decisión sin probabilidades disponibles"]
+
+            col_prob1, col_prob2 = st.columns(2)
+            with col_prob1:
+                st.markdown("**Red Bayesiana**")
+                for line in bayes_rows:
+                    st.markdown(line)
+
+            with col_prob2:
+                st.markdown("**Red Neuronal**")
+                for line in neur_rows:
+                    st.markdown(line)
+
+            if probs_nn is not None:
+                if prediccion_bayes != prediccion_nn:
+                    st.info(
+                        f"Los dos motores no coinciden en el diagnóstico final: Bayesiana → {prediccion_bayes}, Neuronal → {prediccion_nn}. "
+                        "Esto muestra claramente que las decisiones son diferentes aun cuando la accuracy global es igual."
+                    )
+                else:
+                    st.info(
+                        "Aunque ambos modelos eligen la misma categoría final, sus probabilidades internas difieren, lo cual indica que usan criterios distintos."
+                    )
+        else:
+            st.warning("No se encontraron métricas completas para mostrar la comparativa de modelos.")
+    else:
+        st.warning("No se pudo cargar el archivo de métricas. Ejecute generar_metricas.py para generar metricas_modelos.json.")
 
     # Auditoría y Trazabilidad (Gobierno de Datos)
     st.divider()

@@ -1,0 +1,5 @@
+{
+  "accuracy_neuronal": 0.945,
+  "accuracy_bayesiana": 0.945,
+  "mejor_modelo": "Red Neuronal"
+}

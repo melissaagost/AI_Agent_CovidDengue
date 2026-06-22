@@ -98,6 +98,7 @@ def calcular_prevalencia_estacional() -> list[float]:
 
 # ---------------------------------------------------------------------------
 # 2. CONSTRUCCIÓN DE LA RED BAYESIANA
+# grafo acíclico dirigido: un nodo raíz (Enfermedad) con una flecha hacia cada uno de los 10 síntomas
 # ---------------------------------------------------------------------------
 
 modelo = DiscreteBayesianNetwork([
@@ -113,7 +114,8 @@ modelo = DiscreteBayesianNetwork([
     ('Enfermedad', 'Diarrea'),
 ])
 
-# Nodo raíz: Enfermedad — [Ninguna=0, Dengue=1, COVID-19=2]
+# El prior - P(Enfermedad)
+# probabilidad antes de ver cualquier síntoma. 
 prevalencia = calcular_prevalencia_estacional()
 cpd_enf = TabularCPD(
     variable='Enfermedad', variable_card=3,
@@ -124,6 +126,8 @@ cpd_enf = TabularCPD(
 # CPDs para síntomas (filas: [P(NO), P(SÍ)] / columnas: [Ninguna, Dengue, COVID])
 # ---------------------------------------------------------------------------
 
+# La verosimilitud - P(sintoma | Enfermedad)
+# dado que el paciente tiene Ninguna/Dengue/COVID, ¿qué probabilidad hay de fiebre?
 cpd_fiebre = TabularCPD(
     variable='Fiebre', variable_card=2,
     values=[[0.95, 0.10, 0.20],

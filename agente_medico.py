@@ -13,15 +13,15 @@ import pandas as pd
 from pgmpy.models import DiscreteBayesianNetwork
 from pgmpy.factors.discrete import TabularCPD
 from pgmpy.inference import VariableElimination
-from datetime import datetime
+import datetime
 
 # ---------------------------------------------------------------------------
 # 1. PROBABILIDADES A PRIORI — calculadas desde datasets reales
 # ---------------------------------------------------------------------------
 
-_PRIOR_NINGUNA = 0.65   # fallback si los CSVs no se pueden leer
+_PRIOR_NINGUNA = 0.60   # fallback si los CSVs no se pueden leer
 _PRIOR_DENGUE  = 0.15
-_PRIOR_COVID   = 0.20
+_PRIOR_COVID   = 0.25
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -86,7 +86,7 @@ def calcular_prevalencia_estacional() -> list[float]:
         p_ninguna = _PRIOR_NINGUNA
 
     # Factor estacional: verano austral aumenta circulación de Dengue
-    mes_actual = datetime.now().month
+    mes_actual = datetime.datetime.now().month
     if mes_actual in [12, 1, 2, 3]:
         p_dengue  *= 1.8
         p_ninguna *= 0.85
@@ -269,7 +269,7 @@ def realizar_inferencia(percepciones: dict) -> tuple[dict, str]:
             explicacion += "- Mialgias intensas: características del cuadro febril del Dengue.\n"
         if percepciones.get('Diarrea') == 1:
             explicacion += "- Diarrea: síntoma gastrointestinal común en Dengue (~50% casos).\n"
-        if datetime.now().month in [12, 1, 2, 3]:
+        if datetime.datetime.now().month in [12, 1, 2, 3]:
             explicacion += "- Factor estacional aplicado: alta circulación de Dengue en verano austral.\n"
         explicacion += "- Prior ajustado con datos epidemiológicos reales (SNVS Corrientes 2025).\n"
 
